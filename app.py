@@ -272,6 +272,113 @@ def hab_labels():
     return [h[0] for h in habs()]
 
 # =========================================================
+# ESTÁNDARES DE EVALUACIÓN POR EDAD (TESTS FÍSICOS Y TÉCNICOS)
+# =========================================================
+# Cada habilidad tiene un test estándar asociado. Las marcas de
+# referencia están calculadas para SUB-18 (jugador formado) y se
+# escalan automáticamente para categorías menores con un factor
+# de desarrollo por edad. Son valores de referencia orientativos
+# (estándares habituales de fútbol formativo) y se pueden ajustar
+# editando AGE_MULT o el "calib" de cada test en TEST_DEFS.
+
+AGE_MULT = {
+    "sub12": 0.72, "sub13": 0.78, "sub14": 0.84, "sub15": 0.89,
+    "sub16": 0.93, "sub17": 0.97, "sub18": 1.00,
+}
+CATEGORIAS = ["sub12", "sub13", "sub14", "sub15", "sub16", "sub17", "sub18"]
+
+def edad_a_categoria(edad):
+    edad = int(edad)
+    if edad <= 12: return "sub12"
+    if edad == 13: return "sub13"
+    if edad == 14: return "sub14"
+    if edad == 15: return "sub15"
+    if edad == 16: return "sub16"
+    if edad == 17: return "sub17"
+    return "sub18"
+
+# Orden alineado 1 a 1 con HABILIDADES["es"] / HABILIDADES["en"]
+# tipo: "tiempo" (seg, menor=mejor) | "conteo" (aciertos, mayor=mejor) | "distancia" (m, mayor=mejor)
+TEST_DEFS = [
+    {"nombre_es": "Control orientado", "nombre_en": "Ball control drill",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 10, 80: 8, 60: 6, 40: 4, 20: 2, 0: 0}},
+    {"nombre_es": "Slalom con balón 20m", "nombre_en": "20m dribbling slalom",
+     "unidad": "seg", "tipo": "tiempo", "lower_is_better": True,
+     "calib": {100: 5.5, 80: 6.0, 60: 6.5, 40: 7.2, 20: 8.0, 0: 9.0}},
+    {"nombre_es": "Precisión pase corto (8m)", "nombre_en": "Short pass accuracy (8m)",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 10, 80: 8, 60: 6, 40: 4, 20: 2, 0: 0}},
+    {"nombre_es": "Precisión pase largo (30m)", "nombre_en": "Long pass accuracy (30m)",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 10, 80: 7, 60: 5, 40: 3, 20: 1, 0: 0}},
+    {"nombre_es": "Finalización (tiros a arco)", "nombre_en": "Finishing on goal",
+     "unidad": "goles/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 9, 80: 7, 60: 5, 40: 3, 20: 1, 0: 0}},
+    {"nombre_es": "Circuito de regate 1v1 (conos)", "nombre_en": "1v1 cone dribbling circuit",
+     "unidad": "seg", "tipo": "tiempo", "lower_is_better": True,
+     "calib": {100: 6.0, 80: 6.6, 60: 7.2, 40: 8.0, 20: 9.0, 0: 10.0}},
+    {"nombre_es": "Precisión de cabeceo a arco", "nombre_en": "Heading accuracy on goal",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 8, 80: 6, 60: 4, 40: 2, 20: 1, 0: 0}},
+    {"nombre_es": "Intercepciones en circuito", "nombre_en": "Interception drill",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 9, 80: 7, 60: 5, 40: 3, 20: 1, 0: 0}},
+    {"nombre_es": "Duelos defensivos ganados", "nombre_en": "Defensive duels won",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 9, 80: 7, 60: 5, 40: 3, 20: 1, 0: 0}},
+    {"nombre_es": "Test situacional de posicionamiento", "nombre_en": "Positioning situational test",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 9, 80: 7, 60: 5, 40: 3, 20: 1, 0: 0}},
+    {"nombre_es": "Pases clave en situación de juego", "nombre_en": "Key passes in game situation",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 9, 80: 7, 60: 5, 40: 3, 20: 1, 0: 0}},
+    {"nombre_es": "Decisiones correctas (superioridad/inferioridad)", "nombre_en": "Correct decisions drill",
+     "unidad": "aciertos/10", "tipo": "conteo", "lower_is_better": False,
+     "calib": {100: 9, 80: 7, 60: 5, 40: 3, 20: 1, 0: 0}},
+    {"nombre_es": "Sprint 10m", "nombre_en": "10m sprint",
+     "unidad": "seg", "tipo": "tiempo", "lower_is_better": True,
+     "calib": {100: 1.65, 80: 1.78, 60: 1.90, 40: 2.05, 20: 2.20, 0: 2.40}},
+    {"nombre_es": "Sprint 30m", "nombre_en": "30m sprint",
+     "unidad": "seg", "tipo": "tiempo", "lower_is_better": True,
+     "calib": {100: 4.00, 80: 4.30, 60: 4.60, 40: 5.00, 20: 5.50, 0: 6.00}},
+    {"nombre_es": "Test Cooper (12 min)", "nombre_en": "Cooper test (12 min)",
+     "unidad": "metros", "tipo": "distancia", "lower_is_better": False,
+     "calib": {100: 3000, 80: 2700, 60: 2400, 40: 2100, 20: 1800, 0: 1500}},
+    {"nombre_es": "Salto horizontal sin impulso", "nombre_en": "Standing long jump",
+     "unidad": "metros", "tipo": "distancia", "lower_is_better": False,
+     "calib": {100: 2.60, 80: 2.40, 60: 2.20, 40: 2.00, 20: 1.80, 0: 1.60}},
+]
+
+def calib_por_categoria(idx, categoria):
+    """Tabla de marcas {score: valor} escalada a la categoría de edad."""
+    base = TEST_DEFS[idx]
+    mult = AGE_MULT.get(categoria, 1.0)
+    lower = base["lower_is_better"]
+    out = {}
+    for score, val in base["calib"].items():
+        nv = (val / mult) if lower else (val * mult)
+        if base["tipo"] == "conteo":
+            nv = round(nv)
+        else:
+            nv = round(nv, 2)
+        out[score] = nv
+    return out
+
+def score_from_mark(mark, calib, lower_is_better):
+    """Interpola la marca ingresada contra la tabla de calibración -> nota 0-100."""
+    items = sorted(calib.items(), key=lambda kv: kv[1])
+    xp = [v for _, v in items]
+    fp = [s for s, _ in items]
+    score = float(np.interp(mark, xp, fp))
+    return round(max(0, min(100, score)), 1)
+
+def test_def_for(idx, lang):
+    t = TEST_DEFS[idx]
+    nombre = t["nombre_es"] if lang == "es" else t["nombre_en"]
+    return nombre, t["unidad"], t["tipo"], t["lower_is_better"]
+
+# =========================================================
 # FORMACIONES
 # =========================================================
 
@@ -665,7 +772,18 @@ with st.sidebar:
         pie = st.selectbox(T("foot"), pie_opts)
     with c2:
         altura = st.number_input(T("height"), 100, 220, 175)
-    peso = st.number_input(T("weight"), 1, 200, 72)
+    c3, c4 = st.columns(2)
+    with c3:
+        peso = st.number_input(T("weight"), 1, 200, 72)
+    with c4:
+        edad = st.number_input("Edad" if st.session_state.lang == "es" else "Age", 6, 45, 15)
+
+    categoria = edad_a_categoria(edad)
+    st.markdown(f"""
+    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#7A7A92;letter-spacing:1px;padding:2px 0 0.4rem 0;">
+        {"CATEGORÍA" if st.session_state.lang == "es" else "CATEGORY"}: <span style="color:#C9A84C;">{categoria.upper()}</span>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown(f'<div class="sidebar-section">📊 {T("skills_section")}</div>', unsafe_allow_html=True)
     st.markdown(f"""
@@ -693,6 +811,8 @@ with st.sidebar:
                 "foot": pie,
                 "h": altura,
                 "w": peso,
+                "edad": edad,
+                "categoria": categoria,
             })
             st.rerun()
 
@@ -978,7 +1098,13 @@ tab0, tab1, tab2, tab3 = st.tabs([T("tab_input"), T("tab_field"), T("tab_stats")
 # ─────────────────────────────────────────────
 with tab0:
     st.markdown(f'<div class="section-title">{T("skills_title")}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div style="font-family:Space Mono,monospace;font-size:0.63rem;letter-spacing:1px;color:#7A7A92;margin-bottom:1.5rem;">{T("skills_hint")}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-family:Space Mono,monospace;font-size:0.63rem;letter-spacing:1px;color:#7A7A92;margin-bottom:0.5rem;">{T("skills_hint")}</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:1px;color:#C9A84C;margin-bottom:1.2rem;">
+        {"📏 Categoría activa" if st.session_state.lang == "es" else "📏 Active category"}: <b>{categoria.upper()}</b>
+        &nbsp;|&nbsp; {"Elegí Manual o Por Marca en cada habilidad" if st.session_state.lang=="es" else "Choose Manual or By Mark for each skill"}
+    </div>
+    """, unsafe_allow_html=True)
 
     habs_list = habs()
     cats = {}
@@ -1000,8 +1126,40 @@ with tab0:
                 for hab in cat_habs:
                     idx = hab_labels().index(hab)
                     prev = st.session_state.puntajes_tmp[idx] if idx < len(st.session_state.puntajes_tmp) else 60
-                    val = st.number_input(hab, min_value=0, max_value=100, value=int(prev), step=1, key=f"ni_{hab}_{st.session_state.lang}")
-                    st.session_state.puntajes_tmp[idx] = val
+
+                    nombre_test, unidad, tipo, lower_is_better = test_def_for(idx, st.session_state.lang)
+                    modo = st.radio(
+                        hab, ["Manual", "📏 Por marca" if st.session_state.lang == "es" else "📏 By mark"],
+                        horizontal=True, key=f"modo_{hab}_{st.session_state.lang}", label_visibility="visible"
+                    )
+
+                    if modo == "Manual":
+                        val = st.number_input("", min_value=0, max_value=100, value=int(prev), step=1,
+                                               key=f"ni_{hab}_{st.session_state.lang}", label_visibility="collapsed")
+                        st.session_state.puntajes_tmp[idx] = val
+                    else:
+                        calib = calib_por_categoria(idx, categoria)
+                        ref_100 = calib[100]
+                        ref_60 = calib[60]
+                        st.markdown(f"""
+                        <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#7A7A92;margin-bottom:2px;">
+                            {nombre_test} ({unidad}) — 100: {ref_100} | 60: {ref_60}
+                        </div>
+                        """, unsafe_allow_html=True)
+                        step = 1.0 if tipo == "conteo" else 0.01
+                        default_mark = calib[60]
+                        marca = st.number_input(
+                            "", min_value=0.0, max_value=float(max(calib.values())) * 1.5,
+                            value=float(default_mark), step=step,
+                            key=f"marca_{hab}_{st.session_state.lang}", label_visibility="collapsed"
+                        )
+                        val = score_from_mark(marca, calib, lower_is_better)
+                        st.session_state.puntajes_tmp[idx] = val
+                        st.markdown(f"""
+                        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#C9A84C;margin-top:-4px;">
+                            {val:.0f} <span style="font-family:'Space Mono',monospace;font-size:0.55rem;color:#7A7A92;">{"NOTA" if st.session_state.lang=="es" else "SCORE"}</span>
+                        </div>
+                        """, unsafe_allow_html=True)
 
     avg_live = round(sum(st.session_state.puntajes_tmp)/len(st.session_state.puntajes_tmp),1)
     nivel_live = T("nivel_elite") if avg_live>=85 else (T("nivel_comp") if avg_live>=70 else T("nivel_dev"))
@@ -1074,6 +1232,7 @@ with tab2:
                         <span class="pc-tag">🦶 {p['foot']}</span>
                         <span class="pc-tag">📏 {p['h']} cm</span>
                         <span class="pc-tag">⚖️ {p['w']} kg</span>
+                        <span class="pc-tag">🎂 {p.get('edad','-')} ({p.get('categoria','-').upper()})</span>
                     </div>
                     <br>{bars_html}
                 </div>""", unsafe_allow_html=True)
